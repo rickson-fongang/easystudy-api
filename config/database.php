@@ -1,10 +1,10 @@
 <?php
 class Database {
-   private $host = "127.0.0.1"; 
-private $db_name = "easystudy_db"; 
-private $username = "root"; 
-private $password = ""; // (default is empty in XAMPP)
-private $port = "3306";
+    private $host = "tramway.proxy.rlwy.net";          // Railway host
+    private $db_name = "railway";                      // Railway database name
+    private $username = "root";                        // Railway username
+    private $password = "ZHwqVHydwhBhKKKRUNWeLxzhvdywkmPn"; // Railway password
+    private $port = "42205";                           // Railway port
     public $conn;
 
     public function getConnection() {
@@ -12,14 +12,18 @@ private $port = "3306";
 
         try {
             $this->conn = new PDO(
-                "mysql:host={$this->host};port={$this->port};dbname={$this->db_name}", 
-                $this->username, 
+                "mysql:host={$this->host};port={$this->port};dbname={$this->db_name};charset=utf8mb4",
+                $this->username,
                 $this->password
             );
-            $this->conn->exec("set names utf8");
+            // Optional: throw exceptions on errors
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch(PDOException $exception) {
-            echo "Connection error: " . $exception->getMessage();
+            echo json_encode([
+                "success" => false,
+                "message" => "Database connection error: " . $exception->getMessage()
+            ]);
+            exit();
         }
 
         return $this->conn;
