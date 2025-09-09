@@ -1,7 +1,7 @@
 <?php
 require_once '../config/config.php';
 require_once '../config/database.php';
-require_once '../classes/User.php';
+require_once __DIR__ . "/../classes/User.php";
 require_once '../classes/Auth.php';
 
 $data = json_decode(file_get_contents("php://input"));
