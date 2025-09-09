@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . "/../config/database.php";
 
-
 class User {
     private $conn;
     private $table_name = "users";
@@ -48,7 +47,7 @@ class User {
         $stmt->bindParam(":password", $this->password);
         $stmt->bindParam(":user_type", $this->user_type);
 
-        if($stmt->execute()) {
+        if ($stmt->execute()) {
             $this->id = $this->conn->lastInsertId();
             return true;
         }
@@ -68,7 +67,7 @@ class User {
 
         $num = $stmt->rowCount();
 
-        if($num > 0) {
+        if ($num > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $this->id = $row['id'];
             $this->first_name = $row['first_name'];
@@ -78,6 +77,35 @@ class User {
             $this->password = $row['password'];
             $this->user_type = $row['user_type'];
             $this->is_active = $row['is_active'];
+            return true;
+        }
+
+        return false;
+    }
+
+    // Load user by email (for login)
+    public function loadByEmail($email) {
+        $query = "SELECT * FROM " . $this->table_name . " 
+                  WHERE email = :email LIMIT 1";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $this->id = $row['id'];
+            $this->first_name = $row['first_name'];
+            $this->last_name = $row['last_name'];
+            $this->email = $row['email'];
+            $this->phone = $row['phone'];
+            $this->password = $row['password'];
+            $this->user_type = $row['user_type'];
+            $this->is_active = $row['is_active'];
+            $this->created_at = $row['created_at'];
+            $this->updated_at = $row['updated_at'];
+
             return true;
         }
 
@@ -96,7 +124,7 @@ class User {
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if($row) {
+        if ($row) {
             $this->first_name = $row['first_name'];
             $this->last_name = $row['last_name'];
             $this->email = $row['email'];

@@ -10,14 +10,16 @@ if (!empty($data->email) && !empty($data->password)) {
     $database = new Database();
     $db = $database->getConnection();
     $user = new User($db);
+    $user->email = $data->email;
 
-    if ($user->loadByEmail($data->email)) {
+    if ($user->emailExists()) {
 
-        if ($user->user_type !== 'tutor') {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Only tutors can log in here.']);
-            exit;
-        }
+        // Optional: restrict to tutors if needed
+        // if ($user->user_type !== 'tutor') {
+        //     http_response_code(403);
+        //     echo json_encode(['success' => false, 'message' => 'Only tutors can log in here.']);
+        //     exit;
+        // }
 
         if (password_verify($data->password, $user->password)) {
             if ($user->is_active) {
@@ -34,7 +36,7 @@ if (!empty($data->email) && !empty($data->password)) {
                 http_response_code(200);
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Tutor login successful',
+                    'message' => ucfirst($user->user_type) . ' login successful',
                     'token' => $token,
                     'user' => $user_data
                 ]);
@@ -52,7 +54,7 @@ if (!empty($data->email) && !empty($data->password)) {
 
     } else {
         http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Tutor not found.']);
+        echo json_encode(['success' => false, 'message' => 'User not found.']);
         exit;
     }
 

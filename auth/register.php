@@ -6,13 +6,16 @@ require_once __DIR__ . "/../classes/Auth.php";
 
 $data = json_decode(file_get_contents("php://input"));
 
+// Validate required fields
 if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email) && !empty($data->password)) {
     $database = new Database();
     $db = $database->getConnection();
     $user = new User($db);
 
+    $user->email = $data->email;
+
     // Check if email already exists
-    if ($user->loadByEmail($data->email)) {
+    if ($user->emailExists()) {
         http_response_code(409);
         echo json_encode([
             'success' => false,
@@ -21,25 +24,37 @@ if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email
         exit;
     }
 
-    // Hash password
+    // Assign user properties
     $user->first_name = $data->first_name;
     $user->last_name = $data->last_name;
-    $user->email = $data->email;
-    $user->password = password_hash($data->password, PASSWORD_BCRYPT);
-    $user->user_type = 'tutor';
+    $user->password = $data->password; // will be hashed in create()
+    
+    // Assign role if provided, default to student
+    $user->user_type = !empty($data->user_type) && in_array($data->user_type, ['student', 'tutor'])
+        ? $data->user_type
+        : 'student';
+
     $user->is_active = true;
 
+    // Create user
     if ($user->create()) {
         http_response_code(201);
         echo json_encode([
             'success' => true,
-            'message' => 'Tutor registered successfully.'
+            'message' => ucfirst($user->user_type) . ' registered successfully.',
+            'user' => [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'user_type' => $user->user_type
+            ]
         ]);
     } else {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to register tutor.'
+            'message' => 'Failed to register user.'
         ]);
     }
 
