@@ -1,17 +1,24 @@
-# Use PHP with Apache
+# Use official PHP with Apache image
 FROM php:8.2-apache
 
-# Enable mysqli (needed for MySQL connection)
-RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+# Enable Apache rewrite module
+RUN a2enmod rewrite
 
-# Copy all your project files into the web root
+# Install PDO MySQL driver
+RUN docker-php-ext-install pdo pdo_mysql mysqli
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy all files from repo
 COPY . /var/www/html/
 
-# Give Apache access
-RUN chown -R www-data:www-data /var/www/html
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
-# Expose web port
+# Expose HTTP port
 EXPOSE 80
 
-# Start Apache
+# Start Apache in foreground
 CMD ["apache2-foreground"]
