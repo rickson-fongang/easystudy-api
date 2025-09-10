@@ -7,10 +7,9 @@ require_once __DIR__ . "/../classes/Auth.php";
 $data = json_decode(file_get_contents("php://input"));
 
 // Validate required fields
-// Validate required fields
 if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email) && !empty($data->password)) {
     
-    // ✅ ADD ADMIN CODE VALIDATION FOR STUDENTS
+    // Admin code validation for students
     if (!empty($data->user_type) && $data->user_type === 'student') {
         if (empty($data->admin_code)) {
             http_response_code(400);
@@ -21,8 +20,7 @@ if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email
             exit;
         }
         
-        // Check if admin code is valid (you can customize this)
-        $valid_admin_codes = ['EASY2025', 'STUDENT123', 'RICKSON2024']; // Define your codes
+        $valid_admin_codes = ['EASY2025', 'STUDENT123', 'RICKSON2024'];
         
         if (!in_array($data->admin_code, $valid_admin_codes)) {
             http_response_code(400);
@@ -33,9 +31,7 @@ if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email
             exit;
         }
     }
-    
-    
-if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email) && !empty($data->password)) {
+
     $database = new Database();
     $db = $database->getConnection();
     $user = new User($db);
@@ -55,13 +51,12 @@ if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email
     // Assign user properties
     $user->first_name = $data->first_name;
     $user->last_name = $data->last_name;
+    $user->email = $data->email;
+    $user->phone = !empty($data->phone) ? $data->phone : ''; // Handle missing phone
     $user->password = $data->password; // will be hashed in create()
-    
-    // Assign role if provided, default to student
     $user->user_type = !empty($data->user_type) && in_array($data->user_type, ['student', 'tutor'])
         ? $data->user_type
         : 'student';
-
     $user->is_active = true;
 
     // Create user
@@ -82,7 +77,7 @@ if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to register user.'
+            'message' => 'Failed to register user. Check database connection.'
         ]);
     }
 
@@ -90,7 +85,7 @@ if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'message' => 'All fields are required.'
+        'message' => 'All fields are required (first_name, last_name, email, password).'
     ]);
 }
 ?>
