@@ -3,6 +3,4 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# Security headers
-Header always set X-Frame-Options DENY
-Header always set X-Content-Type-Options nosniff
+# Note: Security headers moved to PHP files since mod_headers is not available

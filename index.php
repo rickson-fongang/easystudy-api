@@ -2,7 +2,7 @@
 // CORS headers MUST be first, before any output
 $allowed_origins = [
     'http://localhost:3000',
-    'https://easystudy-platform.vercel.app'  // Remove the trailing slash
+    'https://easystudy-platform.vercel.app'
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
