@@ -7,6 +7,34 @@ require_once __DIR__ . "/../classes/Auth.php";
 $data = json_decode(file_get_contents("php://input"));
 
 // Validate required fields
+// Validate required fields
+if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email) && !empty($data->password)) {
+    
+    // ✅ ADD ADMIN CODE VALIDATION FOR STUDENTS
+    if (!empty($data->user_type) && $data->user_type === 'student') {
+        if (empty($data->admin_code)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Admin code is required for student registration.'
+            ]);
+            exit;
+        }
+        
+        // Check if admin code is valid (you can customize this)
+        $valid_admin_codes = ['EASY2025', 'STUDENT123', 'RICKSON2024']; // Define your codes
+        
+        if (!in_array($data->admin_code, $valid_admin_codes)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Invalid admin code provided.'
+            ]);
+            exit;
+        }
+    }
+    
+    
 if (!empty($data->first_name) && !empty($data->last_name) && !empty($data->email) && !empty($data->password)) {
     $database = new Database();
     $db = $database->getConnection();
