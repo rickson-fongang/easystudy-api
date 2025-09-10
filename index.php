@@ -1,4 +1,29 @@
 <?php
+// CORS headers MUST be first, before any output
+$allowed_origins = [
+    'http://localhost:3000',
+    'https://easystudy-platform.vercel.app'  // Remove the trailing slash
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    header("Access-Control-Allow-Origin: *");
+}
+
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Now include config
 require_once __DIR__ . "/config/config.php";
 
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -16,7 +41,7 @@ switch ($path) {
     case 'auth/logout':
         require_once __DIR__ . '/auth/logout.php';
         break;
-    
+
     // User routes
     case 'users/profile':
         require_once __DIR__ . '/users/profile.php';
@@ -27,7 +52,7 @@ switch ($path) {
     case 'users/students':
         require_once __DIR__ . '/users/students.php';
         break;
-    
+
     // Video routes
     case 'videos/upload':
         require_once __DIR__ . '/videos/upload.php';
@@ -41,7 +66,7 @@ switch ($path) {
     case 'videos/update':
         require_once __DIR__ . '/videos/update.php';
         break;
-    
+
     // Task routes
     case 'tasks/create':
         require_once __DIR__ . '/tasks/create.php';
@@ -55,7 +80,7 @@ switch ($path) {
     case 'tasks/update':
         require_once __DIR__ . '/tasks/update.php';
         break;
-    
+
     // Chat routes
     case 'chat/send':
         require_once __DIR__ . '/chat/send.php';
@@ -63,7 +88,7 @@ switch ($path) {
     case 'chat/messages':
         require_once __DIR__ . '/chat/messages.php';
         break;
-    
+
     // Dashboard routes
     case 'dashboard/data':
         require_once __DIR__ . '/dashboard/data.php';
@@ -71,7 +96,7 @@ switch ($path) {
     case 'dashboard/progress':
         require_once __DIR__ . '/dashboard/progress.php';
         break;
-    
+
     default:
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Endpoint not found: ' . $path]);
