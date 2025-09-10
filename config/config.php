@@ -1,4 +1,27 @@
 <?php
+// Load environment variables
+if (file_exists(__DIR__ . '/../.env')) {
+    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        list($name, $value) = explode('=', $line, 2);
+        $_ENV[trim($name)] = trim($value);
+    }
+}
+
+// Update CORS to allow your Vercel domain
+$allowed_origins = [
+    'http://localhost:3000',
+    'https://easystudy-platform.vercel.app/' 
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    header("Access-Control-Allow-Origin: *");
+}
+
 // Application configuration
 define('JWT_SECRET', 'your-secret-key-here-change-in-production');
 define('JWT_ALGORITHM', 'HS256');
